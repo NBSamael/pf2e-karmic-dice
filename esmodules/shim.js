@@ -119,13 +119,16 @@ Hooks.once('init', () => {
             console.warn(`${PACKAGE_TITLE}: libWrapper not present, using fallback implementation.`);
             game.settings.register(PACKAGE_ID, DONT_REMIND_AGAIN_KEY, { name: '', default: false, type: Boolean, scope: 'world', config: false });
             if (game.user.isGM && !game.settings.get(PACKAGE_ID, DONT_REMIND_AGAIN_KEY)) {
-                new Dialog({
-                    title: FALLBACK_MESSAGE_TITLE,
-                    content: FALLBACK_MESSAGE, buttons: {
-                        ok: { icon: '<i class="fas fa-check"></i>', label: 'Understood' },
-                        dont_remind: { icon: '<i class="fas fa-times"></i>', label: "Don't remind me again", callback: () => game.settings.set(PACKAGE_ID, DONT_REMIND_AGAIN_KEY, true) }
-                    }
-                }).render(true);
+                // Modified for pf2e-karmic-dice: use ApplicationV2 dialogs (the V1 Dialog class is deprecated since Foundry v13)
+                foundry.applications.api.DialogV2.wait({
+                    window: { title: FALLBACK_MESSAGE_TITLE },
+                    content: FALLBACK_MESSAGE,
+                    rejectClose: false,
+                    buttons: [
+                        { action: 'ok', icon: 'fa-solid fa-check', label: 'Understood', default: true },
+                        { action: 'dont_remind', icon: 'fa-solid fa-xmark', label: "Don't remind me again", callback: () => game.settings.set(PACKAGE_ID, DONT_REMIND_AGAIN_KEY, true) }
+                    ]
+                });
             }
         });
     }
